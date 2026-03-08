@@ -22,10 +22,18 @@ await connectDB()
 const app = express();
 
 
+// app.use(cors({
+//     origin: ['http://localhost:5173', 'http://localhost:3000', 'https://thumblify-blue-eight.vercel.app'],
+//     credentials: true
+// }))
+
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000', 'https://thumblify-blue-eight.vercel.app'],
-    credentials: true
-}))
+  origin: [
+    "http://localhost:5173",
+    "https://your-frontend.vercel.app"
+  ],
+  credentials: true
+}));
 
 app.use(express.json());
 
@@ -64,6 +72,22 @@ app.set('trust proxy', 1);
 //   })
 // }));
 
+// app.use(session({
+//   secret: process.env.SESSION_SECRET as string,
+//   resave: false,
+//   saveUninitialized: false,
+//   proxy: true,
+//   cookie: {
+//     maxAge: 7 * 24 * 60 * 60 * 1000,
+//     httpOnly: true,
+//     secure: false,        // 🔥 change this
+//     sameSite: "lax"       // 🔥 change this
+//   },
+//   store: MongoStore.create({
+//     mongoUrl: process.env.MONGODB_URI as string,
+//     collectionName: "sessions"
+//   })
+// }));
 app.use(session({
   secret: process.env.SESSION_SECRET as string,
   resave: false,
@@ -72,12 +96,11 @@ app.use(session({
   cookie: {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: false,        // 🔥 change this
-    sameSite: "lax"       // 🔥 change this
+    secure: true,
+    sameSite: "none"
   },
   store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI as string,
-    collectionName: "sessions"
+    mongoUrl: process.env.MONGODB_URI as string
   })
 }));
 
@@ -92,8 +115,10 @@ app.use('/api/thumbnail', ThumbnailRouter);
 app.use('/api/user', UserRouter);
 
 const port = process.env.PORT || 3000;
+//deployment chnange
+// app.listen(port, () => {
+// console.log(`Server is running at http://localhost:${port}`);  
 
-app.listen(port, () => {
-console.log(`Server is running at http://localhost:${port}`);
+// });
 
-});
+export default app;
