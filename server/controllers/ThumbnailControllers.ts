@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import Thumbnail from "../models/Thumbnail.js";
 import { GenerateContentConfig, HarmCategory, HarmBlockThreshold } from "@google/genai";
 import ai from "../configs/ai.js";
-import path from "path";
-import fs from "fs";
+// import path from "path";
+// import fs from "fs";
 import {v2 as cloudinary} from "cloudinary";
 
 
@@ -107,25 +107,41 @@ export const generateThumbnail = async (req: Request, res : Response ) => {
         }
     }
 
-    const filename = `final-output-${Date.now()}.png`;
-    const filePath = path.join('images', filename);
+    // const filename = `final-output-${Date.now()}.png`;
+    // const filePath = path.join('images', filename);
 
-    // create the images directory if it doesn't exist
-    fs.mkdirSync('images', {recursive: true});
+    // // create the images directory if it doesn't exist
+    // fs.mkdirSync('images', {recursive: true});
 
-    //save the image to local storage
-    fs.writeFileSync(filePath, finalBuffer!);
+    // //save the image to local storage
+    // fs.writeFileSync(filePath, finalBuffer!);
 
-    const uploadResult = await cloudinary.uploader.upload(filePath, {resource_type: 'image'});
+    // const uploadResult = await cloudinary.uploader.upload(filePath, {resource_type: 'image'});
 
-    thumbnail.image_url = uploadResult.url;
-    thumbnail.isGenerating = false;
-    await thumbnail.save();
+    // thumbnail.image_url = uploadResult.url;
+    // thumbnail.isGenerating = false;
+    // await thumbnail.save();
 
-    res.json({message: 'Thumbnail generated successfully', thumbnail})
+    // res.json({message: 'Thumbnail generated successfully', thumbnail})
 
-    // remove image file from disk
-    fs.unlinkSync(filePath);
+    // // remove image file from disk
+    // fs.unlinkSync(filePath);
+    const base64Image = `data:image/png;base64,${finalBuffer!.toString("base64")}`;
+
+const uploadResult = await cloudinary.uploader.upload(base64Image, {
+  folder: "thumbnails",
+  resource_type: "image"
+});
+
+thumbnail.image_url = uploadResult.secure_url;
+thumbnail.isGenerating = false;
+
+await thumbnail.save();
+
+res.json({
+  message: "Thumbnail generated successfully",
+  thumbnail
+});
 
     } catch (error : any) {
         console.log(error);
